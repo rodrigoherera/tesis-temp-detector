@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+    server:
+        container_name: temp_detector
+        build: .
+        ports:
+            - "8000:8000"
+            - "10546:10546"
+        restart: on-failure
+        volumes: 
+            - api:/usr/src/app/
+        networks: 
+            - temp_detector
+        depends_on: 
+            - db
+    db:
+        container_name: temp_db
+        build:
+            context: ./Mysql
+        environment: 
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: temp_detector
+            MYSQL_USER: docker
+            MYSQL_PASSWORD: docker
+        ports: 
+            - "3306:3306"
+        tty: true
+        volumes: 
+          - database_mysql:/var/lib/mysql 
+        networks: 
+          - temp_detector
+    
+volumes:
+    api:
+    database_mysql:
+    
+networks: 
+    temp_detector:
+        driver: bridge

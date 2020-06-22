@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package proto;
+
+message User{
+  int64 id = 1;
+  string name = 2;
+  string last_name = 3;
+  string email = 4;
+  string password = 5;
+  bool admin = 6;
+}
+
+message Temperature{
+  int64 user_id = 1;
+  string date = 2;
+  string value = 3;
+  string from = 5;
+  string to = 4;
+}
+
+message GetUsers{
+  repeated User user = 1;
+}
+
+message GetTemperatures{
+  repeated Temperature temperatures = 1;
+}
+
+message ServerResponse{
+  bool success = 1;
+  bytes value = 2;
+  string error = 3;
+}
+
+service BasicService{
+    rpc SetUser(User) returns (ServerResponse);
+    rpc GetUser(User) returns (GetUsers);
+    rpc Login(User) returns (ServerResponse);
+    rpc Get(Temperature) returns (GetTemperatures);
+}

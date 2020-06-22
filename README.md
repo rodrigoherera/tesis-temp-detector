@@ -1,2 +1,19 @@
-# tesis-temp-detector
-Temp Detector es un conjuntos de herramientas open sources, ideado para la registración tanto de entrada como de salida del personal y, al mismo tiempo, poder tomar la temperatura corporal al momento de usar el dispositivo. 
+# Temp Dector
+
+## Distribución
+
+### GO TEMP DETECTOR
+
+- Contiene el backend necesario para la aplicación.
+
+### C TEMP DETECTOR
+
+- Contiene el backend necesario para el arduino.
+
+### FLUTTER TEMP DETECTOR
+
+- Contiene la aplicación mobile necesaria.
+
+### VUE TEMP DETECTOR (WIP)
+
+- Contiene la aplicación web necesaria.
