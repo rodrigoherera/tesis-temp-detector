@@ -14,6 +14,6 @@
 
 - Contiene la aplicación mobile necesaria.
 
-### VUE TEMP DETECTOR (WIP)
+### VUE TEMP DETECTOR
 
 - Contiene la aplicación web necesaria.
