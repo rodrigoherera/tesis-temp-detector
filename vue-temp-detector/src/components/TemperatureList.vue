@@ -1,32 +1,48 @@
 <template>
   <div class="temp">
-    <div class="filter-person">
-      <label for="persons">Person</label>
-      <select name="person" id="person">
-        <option value="all">All</option>
-      </select>
+    <div class="container" v-if="temperatures">
+      <div v-bind:key="temperature.date" v-for="temperature in temperatures">
+        <Temperature v-bind:temperature="temperature"/>
+      </div>
     </div>
-    <div class="filter-date">
-      <label for="date">Date</label>
-      <div>
-        <label for="from">Date from</label>
-        <input type="date" id="from">
-      </div>
-      <div>
-        <label for="to">Date to</label>
-        <input type="date" id="to">
-      </div>
+    <div v-else>
+      <h3>No hay info</h3>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-export default Vue.extend({
-  
+import Component from 'vue-class-component';
+import Temperature from './Temperature.vue';
+import temperatures from '@/store/modules/Temperature';
+
+@Component({
+  name: "TemperatureList",
+  components: {
+    Temperature,
+  }
 })
+export default class TemperatureList extends Vue{
+ 
+  get temperatures() {
+    return temperatures.temperatures
+  }
+
+ created() {
+   temperatures.GetTemperatures()
+ }
+ 
+}
 </script>
 
 <style lang="scss" scoped>
-
+  .container {
+    display: flex;
+    flex-direction: column;
+  }
+  .temp {
+    color: #fff;
+  }
 </style>
+

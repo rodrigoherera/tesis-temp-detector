@@ -49,6 +49,7 @@
 import Vue from 'vue';
 import {Component} from 'vue-property-decorator';
 import users from '@/store/modules/User';
+import { ILogin, IRegister } from "@/store/models";
 
 @Component({
   name: "Auth",
@@ -64,7 +65,8 @@ export default class Auth extends Vue{
 
   login() {
     if (this.email != "" || this.password != "") {
-      users.Login(this.email, this.password)
+      const user: ILogin = {email: this.email, password: this.password};
+      users.Login(user)
       .then(() => this.$router.push('/main'))
       .catch((err) => {
         console.error(err);
@@ -77,8 +79,11 @@ export default class Auth extends Vue{
 
   register() {
     if (this.email != "" || this.password != "" || this.name != "" || this.lastname != "") {
-      users.Register(this.email, this.password, this.name, this.lastname)
-      .then(() => this.$router.push('/main'))
+      const user: IRegister = {email: this.email, password: this.password, name: this.name, lastname: this.lastname};
+      users.Register(user)
+      .then(() => {
+        this.$router.push('/main');
+      })
       .catch((err) => {
         console.error(err);
         this.registerError = 'Invalid username or password';

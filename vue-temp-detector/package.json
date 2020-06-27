@@ -12,7 +12,6 @@
     "google-protobuf": "^3.12.2",
     "grpc": "^1.24.2",
     "grpc-web": "^1.1.0",
-    "nprogress": "^0.2.0",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^8.4.2",
@@ -22,7 +21,6 @@
   },
   "devDependencies": {
     "@types/google-protobuf": "^3.7.2",
-    "@types/nprogress": "^0.2.0",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "@vue/cli-plugin-babel": "~4.4.0",

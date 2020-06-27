@@ -7,10 +7,12 @@ import {
   getModule,
 } from "vuex-module-decorators";
 import store from "@/store";
-import { IUser } from "@/store/models";
-import { User } from '@/proto/service_pb';
-import { BasicServiceClient } from '@/proto/service_grpc_web_pb';
+import { IUser, ILogin, IRegister } from "@/store/models";
+import { User, ServerResponse, GetUsers } from "@/proto/service_pb";
+import { LoginGRPC, RegisterGRPC, GetAllUsers } from './Api';
+import { ClientReadableStream } from 'grpc-web';
 config.rawError = true;
+
 @Module({
   namespaced: true,
   dynamic: true,
@@ -18,88 +20,85 @@ config.rawError = true;
   name: "users",
 })
 class UserStore extends VuexModule {
-  users: User[] = [];
-  user!: IUser;
+  users: IUser[] = [];
+  user: IUser | null = null;
 
   get Users() {
     return this.users;
+  }
+
+  get Email() {
+    if (this.user != null) {
+      return this.user.email;
+    }
   }
 
   get User() {
     return this.user || null;
   }
 
-
   @Mutation
-  _setUsers(userArr: User[]) {
+  _setUsers(response:  ClientReadableStream<GetUsers>) {
+    const userArr: IUser[] =[];
+    response.on('data', data => {
+      const usrStatic: IUser = {id: 0, name: "All", lastname: "", email: "", jwt: ""};
+      const usr = data.getUserList();
+      userArr.push(usrStatic);
+      if (usr.length > 0) {
+        for (let index = 0; index < usr.length; index++) {
+          const item: IUser = {
+            id: usr[index].getId(),
+            name: usr[index].getName(),
+            lastname: usr[index].getLastName(),
+            email: usr[index].getEmail(),
+            jwt: "", 
+          }
+          userArr.push(item);
+        }   
+      }
+    })
     this.users = userArr;
   }
 
   @Mutation
-  _login(response: Uint8Array) {
-    const string = new TextDecoder("utf-8").decode(response); 
-    const obj = JSON.parse(string)
-    let userObj!: IUser;
-    userObj.id = obj['id'];
-    userObj.email = obj['email'];
-    userObj.name = obj['name'];
-    userObj.jwt = obj['jwt'];
+  _login(response:  ClientReadableStream<ServerResponse>) {
 
-    this.user = userObj;
-  }
-
-  @Action({ commit: "_login" })
-  async Login(email: string, password: string) {
-    const client = new BasicServiceClient("http://localhost:8080", null, null);
-    const newUser = new User();
-    newUser.setEmail(email);
-    newUser.setPassword(password);
-    client.login(newUser, {}, (err, res) => {
-      console.log("res", res)
-      console.log("err", err)
-      // if (res.getSuccess()) {
-      //   return res.getValue();
-      // }else {
-      //   console.error(res.getError(), err);
-      //   return null
-      // }
-    });
-  }
-
-  @Action({ commit: "_login" })
-  async Register(email: string, password: string, name: string, lastname: string) {
-    const client = new BasicServiceClient("http://localhost:8000", null, null);
-    const newUser = new User();
-    newUser.setName(name);
-    newUser.setLastName(lastname);
-    newUser.setEmail(email);
-    newUser.setPassword(password);
-    newUser.setAdmin(true);
-
-    client.setUser(newUser, {}, (err, res) => {
-      console.log(res);
-      if (!err) {
-        return res.getValue();
-      }else {
-        console.error(res.getError(), err);
-        return null
+    response.on('data', data => {
+      let str = "";
+      const value = data.getValue_asU8();
+      for (let i = 0; i < value.length; i++) {
+        str += String.fromCharCode(value[i]);
       }
-    });
+      const val: IUser= JSON.parse(str)
+      this.user = {id: val.id, name: val.name, lastname: "", email: val.email, jwt: val.jwt};
+    })
+  }
+
+  @Action({ commit: "_login" })
+  async Login(user: ILogin) {
+    const newUser = new User();
+    newUser.setEmail(user.email);
+    newUser.setPassword(user.password);
+    const ret = await LoginGRPC(newUser)
+    return ret;
+  }
+
+  @Action({ commit: "_login" })
+  async Register(user: IRegister ) {
+    const newUser = new User();
+    newUser.setName(user.name);
+    newUser.setLastName(user.lastname);
+    newUser.setEmail(user.email);
+    newUser.setPassword(user.password);
+    newUser.setAdmin(true);
+    return await RegisterGRPC(newUser)
   }
 
   @Action({ commit: "_setUsers" })
-  async getUsers() {
-    const client = new BasicServiceClient("http://localhost:4040", null, null);
+  async GetUsers() {
     const newUser = new User();
-    client.getUser(newUser, {}, (err, res) => {
-      if (!err) {
-        return res.getUserList();
-      }else{
-        console.error(err);
-        return null 
-      }
-    });
-
+    newUser.setId(0);
+    return await GetAllUsers(newUser);
   }
 }
 

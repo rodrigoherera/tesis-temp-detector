@@ -4,6 +4,20 @@
 
 La aplicación está desarrollada en Vue y sirve como front web para el kit de herramientas de Temp Detector.
 
+## Envoy Proxy
+
+Build docker image
+
+```cmd
+sudo -E docker build -t envoy:v1 .
+```
+
+Run docker image
+
+```cmd
+sudo docker run  -p 10546:10546 --net=host  envoy:v1
+```
+
 ## install dependencies
 
 ```cmd
